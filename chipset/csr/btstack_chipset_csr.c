@@ -55,6 +55,10 @@
 #include "btstack_util.h"
 #include "hci_transport.h"
 
+#ifdef OK
+#undef OK
+#endif
+
 enum update_result {
     OK,
     SKIP,
