@@ -68,16 +68,23 @@ CSRCS  += ./src/btstack_linked_list.c
 CSRCS  += ./src/btstack_run_loop.c
 CSRCS  += ./src/btstack_slip.c
 CSRCS  += ./src/btstack_util.c
+CSRCS  += ./src/classic/bnep.c
+CSRCS  += ./src/classic/sdp_client.c
+CSRCS  += ./src/classic/sdp_util.c
 CSRCS  += ./src/hci.c
 CSRCS  += ./src/hci_cmd.c
 CSRCS  += ./src/hci_dump.c
 CSRCS  += ./src/hci_transport_h5.c
+CSRCS  += ./src/l2cap.c
+CSRCS  += ./src/l2cap_signaling.c
 CSRCS  += ./platform/posix/btstack_link_key_db_fs.c
+CSRCS  += ./platform/posix/btstack_network_posix.c
 CSRCS  += ./platform/posix/btstack_run_loop_posix.c
 CSRCS  += ./platform/posix/btstack_uart_block_posix.c
 CSRCS  += ./chipset/csr/btstack_chipset_csr.c
 
-CSRCS  += ./example/gap_inquiry.c
+#CSRCS  += ./example/gap_inquiry.c
+CSRCS  += ./example/panu_demo.c
 
 MAINSRC = port/posix-h5/main.c
 

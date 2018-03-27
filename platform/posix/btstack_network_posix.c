@@ -50,14 +50,18 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
+#ifndef NUTTX
 #include <ifaddrs.h>
+#endif
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#ifndef NUTTX
 #include <net/if_arp.h>
+#endif
 
 #ifdef __APPLE__
 #include <net/if.h>
@@ -68,7 +72,9 @@
 #endif
 
 #include <sys/ioctl.h>
+#ifndef NUTTX
 #include <sys/param.h>
+#endif
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -76,6 +82,12 @@
 #ifdef __linux
 #include <linux/if.h>
 #include <linux/if_tun.h>
+#endif
+
+#ifdef NUTTX
+#include <net/if.h>
+#include <nuttx/net/tun.h>
+#define ARPHRD_ETHER AF_INET
 #endif
 
 #include "btstack.h"
@@ -89,6 +101,12 @@ static char tap_dev_name[16];
 // tuntaposx provides fixed set of tapX devices
 static const char * tap_dev = "/dev/tap0";
 static const char * tap_dev_name_template = "tap0";
+#endif
+
+#ifdef NUTTX
+// NuttX provides fixed set of tapX devices
+static const char * tap_dev = "/dev/tun";
+static const char * tap_dev_name_template = "bnep0";
 #endif
 
 #ifdef __linux
@@ -169,7 +187,7 @@ int btstack_network_up(bd_addr_t network_address){
         return -1;
     }
 
-#ifdef __linux
+#if defined (__linux) || defined (NUTTX)
     memset(&ifr, 0, sizeof(ifr));
     ifr.ifr_flags = IFF_TAP | IFF_NO_PI; 
     strncpy(ifr.ifr_name, tap_dev_name_template, IFNAMSIZ);  // device name pattern
@@ -197,7 +215,7 @@ int btstack_network_up(bd_addr_t network_address){
     // device to the local bd_address
     memset (&ifr, 0, sizeof(struct ifreq));
     strcpy(ifr.ifr_name, tap_dev_name);
-#ifdef __linux
+#if defined (__linux) || defined (NUTTX)
     ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
     memcpy(ifr.ifr_hwaddr.sa_data, network_address, sizeof(bd_addr_t));
     if (ioctl(fd_socket, SIOCSIFHWADDR, &ifr) == -1) {
