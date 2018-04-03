@@ -86,14 +86,20 @@ static void btstack_uart_posix_process_write(btstack_data_source_t *ds) {
     
     if (write_bytes_len == 0) return;
 
+#ifdef ENABLE_LOG_INFO
     uint32_t start = btstack_run_loop_get_time_ms();
+#endif
 
     // write up to write_bytes_len to fd
     int bytes_written = (int) write(ds->fd, write_bytes_data, write_bytes_len);
+
+#ifdef ENABLE_LOG_INFO
     uint32_t end = btstack_run_loop_get_time_ms();
     if (end - start > 10){
         log_info("write took %u ms", end - start);
     }
+#endif
+
     if (bytes_written == 0){
         log_error("wrote zero bytes\n");
         return;
@@ -127,15 +133,21 @@ static void btstack_uart_posix_process_read(btstack_data_source_t *ds) {
         btstack_run_loop_disable_data_source_callbacks(ds, DATA_SOURCE_CALLBACK_READ);
     }
 
+#ifdef ENABLE_LOG_INFO
     uint32_t start = btstack_run_loop_get_time_ms();
-    
+#endif
+
     // read up to bytes_to_read data in
     ssize_t bytes_read = read(ds->fd, read_bytes_data, read_bytes_len);
     // log_info("btstack_uart_posix_process_read need %u bytes, got %d", read_bytes_len, (int) bytes_read);
+
+#ifdef ENABLE_LOG_INFO
     uint32_t end = btstack_run_loop_get_time_ms();
     if (end - start > 10){
         log_info("read took %u ms", end - start);
     }
+#endif
+
     if (bytes_read == 0){
         log_error("read zero bytes\n");
         return;
@@ -148,7 +160,7 @@ static void btstack_uart_posix_process_read(btstack_data_source_t *ds) {
     read_bytes_len   -= bytes_read;
     read_bytes_data  += bytes_read;
     if (read_bytes_len > 0) return;
-    
+
     btstack_run_loop_disable_data_source_callbacks(ds, DATA_SOURCE_CALLBACK_READ);
 
     if (block_received){
