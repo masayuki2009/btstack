@@ -49,7 +49,7 @@ STACKSIZE = $(CONFIG_EXAMPLES_BTSTACK_STACKSIZE)
 BTSTACK_ROOT = .
 
 CFLAGS += -I${BTSTACK_ROOT}/chipset/csr
-CFLAGS += -I${BTSTACK_ROOT}/port/posix-h5
+CFLAGS += -I${BTSTACK_ROOT}/port/posix-h4
 CFLAGS += -I${BTSTACK_ROOT}/src
 CFLAGS += -I${BTSTACK_ROOT}/src/classic
 CFLAGS += -I${BTSTACK_ROOT}/3rd-party/bluedroid/decoder/include -D OI_DEBUG
@@ -74,7 +74,7 @@ CSRCS  += ./src/classic/sdp_util.c
 CSRCS  += ./src/hci.c
 CSRCS  += ./src/hci_cmd.c
 CSRCS  += ./src/hci_dump.c
-CSRCS  += ./src/hci_transport_h5.c
+CSRCS  += ./src/hci_transport_h4.c
 CSRCS  += ./src/l2cap.c
 CSRCS  += ./src/l2cap_signaling.c
 CSRCS  += ./platform/posix/btstack_link_key_db_fs.c
@@ -86,7 +86,7 @@ CSRCS  += ./chipset/csr/btstack_chipset_csr.c
 #CSRCS  += ./example/gap_inquiry.c
 CSRCS  += ./example/panu_demo.c
 
-MAINSRC = port/posix-h5/main.c
+MAINSRC = port/posix-h4/main.c
 
 CONFIG_EXAMPLES_BTSTACK_PROGNAME ?= btapp$(EXEEXT)
 PROGNAME = $(CONFIG_EXAMPLES_BTSTACK_PROGNAME)

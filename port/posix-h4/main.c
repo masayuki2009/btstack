@@ -62,12 +62,14 @@
 #include "hci_dump.h"
 #include "btstack_stdin.h"
 
-#include "btstack_chipset_bcm.h"
 #include "btstack_chipset_csr.h"
+#ifndef CSR_ONLY
+#include "btstack_chipset_bcm.h"
 #include "btstack_chipset_cc256x.h"
 #include "btstack_chipset_em9301.h"
 #include "btstack_chipset_stlc2500d.h"
 #include "btstack_chipset_tc3566x.h"
+#endif
 
 int is_bcm;
 
@@ -81,6 +83,30 @@ static hci_transport_config_uart_t config = {
     1,  // flow control
     NULL,
 };
+
+#ifdef NUTTX
+extern void up_bt_enable(int enable);
+
+static int csr_on(void){
+  up_bt_enable(1);
+  return 0;
+}
+
+static int csr_off(void){
+  up_bt_enable(0);
+  return 0;
+}
+
+static int csr_init(void){
+  return 0;
+}
+
+static btstack_control_t hw_control = {
+  .init = csr_init,
+  .on   = csr_on,
+  .off  = csr_off,
+};
+#endif
 
 static btstack_packet_callback_registration_t hci_event_callback_registration;
 
@@ -99,9 +125,11 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                 // terminate, name 248 chars
                 packet[6+248] = 0;
                 printf("Local name: %s\n", &packet[6]);
+#ifndef CSR_ONLY
                 if (is_bcm){
                     btstack_chipset_bcm_set_device_name((const char *)&packet[6]);
                 }
+#endif
             }        
             if (HCI_EVENT_IS_COMMAND_COMPLETE(packet, hci_read_local_version_information)){
                 local_version_information_handler(packet);
@@ -164,6 +192,7 @@ static void local_version_information_handler(uint8_t * packet){
             use_fast_uart();
             hci_set_chipset(btstack_chipset_csr_instance());
             break;
+#ifndef CSR_ONLY
         case BLUETOOTH_COMPANY_ID_TEXAS_INSTRUMENTS_INC: 
             printf("Texas Instruments - CC256x compatible chipset.\n");
             if (lmp_subversion != btstack_chipset_cc256x_lmp_subversion()){
@@ -206,13 +235,18 @@ static void local_version_information_handler(uint8_t * packet){
             hci_set_chipset(btstack_chipset_tc3566x_instance());
             use_fast_uart();
             break;
+#endif
         default:
             printf("Unknown manufacturer / manufacturer not supported yet.\n");
             break;
     }
 }
 
+#ifdef NUTTX
+int btapp_main(int argc, const char * argv[]){
+#else
 int main(int argc, const char * argv[]){
+#endif
 
 	/// GET STARTED with BTstack ///
 	btstack_memory_init();
@@ -227,7 +261,9 @@ int main(int argc, const char * argv[]){
     // config.device_name = "/dev/tty.usbserial-A900K2WS"; // DFROBOT
     // config.device_name = "/dev/tty.usbserial-A50285BI"; // BOOST-CC2564MODA New
     // config.device_name = "/dev/tty.usbserial-A9OVNX5P"; // RedBear IoT pHAT breakout board
-    config.device_name = "/dev/tty.usbserial-A900K0VK"; // CSR8811 breakout board
+    //config.device_name = "/dev/tty.usbserial-A900K0VK"; // CSR8811 breakout board
+
+    config.device_name = "/dev/ttyS1"; // on-board CSR8811
 
     // accept path from command line
     if (argc >= 3 && strcmp(argv[1], "-u") == 0){
@@ -242,6 +278,11 @@ int main(int argc, const char * argv[]){
 	const hci_transport_t * transport = hci_transport_h4_instance(uart_driver);
     const btstack_link_key_db_t * link_key_db = btstack_link_key_db_fs_instance();
 	hci_init(transport, (void*) &config);
+
+#ifdef NUTTX
+    hci_set_control(&hw_control);
+#endif
+
     hci_set_link_key_db(link_key_db);
 
     // set BD_ADDR for CSR without Flash/unique address
@@ -252,8 +293,10 @@ int main(int argc, const char * argv[]){
     hci_event_callback_registration.callback = &packet_handler;
     hci_add_event_handler(&hci_event_callback_registration);
 
+#ifndef NUTTX
     // handle CTRL-c
     signal(SIGINT, sigint_handler);
+#endif
 
     // setup app
     btstack_main(argc, argv);
