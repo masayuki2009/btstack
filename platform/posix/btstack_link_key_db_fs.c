@@ -54,7 +54,7 @@
 #ifdef _WIN32
 #define LINK_KEY_PATH ""
 #else
-#define LINK_KEY_PATH "/tmp/"
+#define LINK_KEY_PATH "/mnt/sd0/"
 #endif
 #endif
 
