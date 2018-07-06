@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/btstack/Makefile
+# apps/external/btstack/Makefile
 #
 #   Copyright (C) 2018 Masayuki Ishikawa. All rights reserved.
 #   Author: Masayuki Ishikawa <masayuki.ishikawa@gmail.com>

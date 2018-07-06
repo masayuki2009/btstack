@@ -1,5 +1,5 @@
 ############################################################################
-# apps/examples/btstack/Make.defs
+# apps/external/btstack/Make.defs
 # Adds selected applications to apps/ build
 #
 #   Copyright (C) 2018 Masayuki Ishikawa. All rights reserved.
@@ -35,5 +35,5 @@
 ############################################################################
 
 ifeq ($(CONFIG_EXAMPLES_BTSTACK),y)
-CONFIGURED_APPS += examples/btstack
+CONFIGURED_APPS += external/btstack
 endif
