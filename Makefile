@@ -58,7 +58,7 @@ CFLAGS += -I${BTSTACK_ROOT}/3rd-party/tinydir
 CFLAGS += -I${BTSTACK_ROOT}/platform/posix
 CFLAGS += -I${BTSTACK_ROOT}/platform/embedded
 CFLAGS += -I..
-CFLAGS += -DNUTTX -DCSR_ONLY
+CFLAGS += -DNUTTX -DCSR_ONLY -DCSR8811_PSKEYS
 
 ASRCS   =
 
